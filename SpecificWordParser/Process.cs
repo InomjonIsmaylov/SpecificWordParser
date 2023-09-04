@@ -33,7 +33,7 @@ public class Process
             CreateJsonFile(invalidOnes, false);
         }
 
-        Console.WriteLine($"Invalid ones: {invalidOnes.Count}, Valid ones: {validOnes.Count}");
+        PrintLine.Info($"Invalid ones: {invalidOnes.Count}, Valid ones: {validOnes.Count}");
 
         return translations;
     }
@@ -46,7 +46,11 @@ public class Process
             Encoder = JavaScriptEncoder.Create(UnicodeRanges.All)
         });
 
-        File.WriteAllText(valid ? $"valid{_id}.json" : $"invalid{_id}.json", json);
+        var fileName = valid ? $"valid{_id}.json" : $"invalid{_id}.json";
+
+        PrintLine.Info("Генерируется файл " + fileName);
+
+        File.WriteAllText(fileName, json);
     }
 
     private void ConvertToTranslations(IReadOnlyList<int> foundIndexes, ICollection<Translation> translations)

@@ -21,11 +21,21 @@ public static class Worker
 
         var taskCount = count / BatchSize;
 
+        PrintLine.Info($"Количество параграфов: {count}");
+        PrintLine.Info($"Количество потоков: {taskCount}");
+        PrintLine.Info($"Количество параграфов обрабатываемых каждым потоком: {BatchSize}");
+
+        PrintLine.Info("Начало обработки\n\n...\n");
+        
         var tasks = new Task[taskCount];
 
         SetProcessTasks(taskCount, wordDocument, BatchSize, tasks);
 
+        await Task.Delay(1000);
+
         await Task.WhenAll(tasks);
+
+        PrintLine.Info("\nОбработка завершена");
 
         wordDocument.Dispose();
     }
@@ -56,23 +66,12 @@ public static class Worker
         }
     }
 
-    //private static string GetFilepath(bool test = true)
-    //{
-    //    var fileName = test ? "test.docx" : "data.docx";
-
-    //    return Path.Combine(@"C:\Users\i_ismaylov\source\repos\SpecificWordParser\SpecificWordParser\wwwroot", fileName);
-
-    //    //return "";
-    //}
-
     public static void GetPathFromUserInput()
     {
         Console.OutputEncoding = Console.InputEncoding = Encoding.UTF8;
 
         Console.Write("Укажите путь до файла (");
-        Console.ForegroundColor = ConsoleColor.Green;
-        Console.Write("нажмите Enter если файл data.docx находится в папке с приложением");
-        Console.ResetColor();
+        Print.Success("нажмите Enter если файл data.docx находится в папке с приложением");
         Console.Write("): ");
 
         FilePath = Console.ReadLine();
@@ -85,9 +84,7 @@ public static class Worker
     public static void GetBatchSizeFromUserInput()
     {
         Console.Write("Укажите сколько параграфов обработать каждому патоку: (");
-        Console.ForegroundColor = ConsoleColor.Green;
-        Console.Write("нажмите Enter чтобы оставить значение по умолчанию 5000");
-        Console.ResetColor();
+        Print.Success("нажмите Enter чтобы оставить значение по умолчанию 5000");
         Console.Write("): ");
 
         var temp = Console.ReadLine();
@@ -95,12 +92,40 @@ public static class Worker
         try
         {
             temp = temp!.Trim();
+            if (string.IsNullOrEmpty(temp))
+            {
+                PrintLine.Info("Учитивается значение по умолчанию 5000");
+
+                return;
+            }
+
             _ = int.TryParse(temp, out var batchSize);
-            BatchSize = batchSize > 99 ? batchSize : 5000;
+
+            if (batchSize >= 100)
+            {
+                Console.WriteLine();
+
+                BatchSize = batchSize;
+
+                return;
+            }
+
+            PrintLine.Error("Значение не может быть меньше 100");
+            PrintLine.Info("Учитивается значение по умолчанию 5000");
+
+            BatchSize = 5000;
         }
         catch
         {
+            PrintLine.Error("Неверное значение");
+            PrintLine.Info("Значение учитивается значение по умолчанию 5000");
+
             BatchSize = 5000;
         }
+    }
+
+    public static bool CheckFileExtension()
+    {
+        return FilePath!.EndsWith(".docx") || FilePath.EndsWith(".doc");
     }
 }
