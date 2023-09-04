@@ -20,3 +20,7 @@ PrintLine.Info($"Путь до файла: {Worker.FilePath}");
 Worker.GetBatchSizeFromUserInput();
 
 await Worker.WorkAsync();
+
+PrintLine.Info("Работа завершена");
+
+Console.ReadKey();
